@@ -95,4 +95,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(pageInfo.getTotal(), pageInfo.getList());
     }
 
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        //为了复用性，封装成对象，更新编辑对象
+        Employee employee = Employee.builder().status(status).id(id).build();
+
+        employeeMapper.update(employee);
+    }
+
 }
