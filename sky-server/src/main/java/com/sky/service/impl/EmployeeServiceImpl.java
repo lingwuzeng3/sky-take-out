@@ -9,9 +9,11 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
+import com.sky.exception.EmpNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
@@ -67,7 +69,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee;
     }
 
-    //新增员工
+    /**
+     * 新增员工
+     * @param employeeDTO
+     */
     public void save(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
 
@@ -85,6 +90,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.save(employee);
     }
 
+    /**
+     * 员工分页查询
+     * @param employeePageQueryDTO
+     * @return
+     */
     @Override
     public PageResult page(EmployeePageQueryDTO employeePageQueryDTO) {
         //调用静态方法，在底层拼接分页
@@ -95,6 +105,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(pageInfo.getTotal(), pageInfo.getList());
     }
 
+
+    /**
+     * 启用或禁用员工
+     * @param status
+     * @param id
+     */
     @Override
     public void startOrStop(Integer status, Long id) {
         //为了复用性，封装成对象，更新编辑对象
@@ -103,6 +119,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.update(employee);
     }
 
+    /**
+     * 按id查询员工
+     * @param id
+     * @return
+     */
     @Override
     public Employee getById(Integer id) {
         Employee employee = employeeMapper.getById(id);
@@ -111,6 +132,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee;
     }
 
+    /**
+     * 修改员工信息
+     * @param employeeDTO
+     */
     @Override
     public void update(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
@@ -119,6 +144,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 设置当前记录创建人 修改人的id
         employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.update(employee);
+    }
+
+    /**
+     * 修改密码
+     * @param passwordEditDTO
+     */
+    @Override
+    public void editPassword(PasswordEditDTO passwordEditDTO) {
+        passwordEditDTO.setEmpId(Math.toIntExact(BaseContext.getCurrentId()));
+        // 1. 先验证旧密码是否正确
+        Employee employee = employeeMapper.getById(passwordEditDTO.getEmpId());
+        if (employee == null) {
+            throw new EmpNotFoundException("员工不存在");
+        }
+        //新旧密码进行md5加密
+        passwordEditDTO.setNewPassword(DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes()));
+        passwordEditDTO.setOldPassword(DigestUtils.md5DigestAsHex(passwordEditDTO.getOldPassword().getBytes()));
+        // 2. 验证密码（使用密码加密比较）
+        if (!employee.getPassword().equals(passwordEditDTO.getOldPassword())) {//输入的旧密码错误
+            throw new RuntimeException("旧密码错误");
+        }else if(employee.getPassword().equals(passwordEditDTO.getNewPassword())) {//设立的新密码与旧密码相等
+            throw new RuntimeException("新密码不能与旧密码相等");
+        }
+        employeeMapper.editPassword(passwordEditDTO);
     }
 
 }
