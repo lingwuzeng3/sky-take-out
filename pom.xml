@@ -18,6 +18,9 @@
         <module>sky-server</module>
     </modules>
     <properties>
+
+        <!-- 依赖版本 -->
+        <mysql.version>8.0.33</mysql.version>  <!-- 新增 -->
 <!--        添加编译版本-->
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
@@ -39,6 +42,13 @@
     </properties>
     <dependencyManagement>
         <dependencies>
+            <!-- 新增MySQL驱动管理 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
