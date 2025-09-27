@@ -28,15 +28,17 @@ import java.time.LocalDateTime;
 @Aspect
 @Component
 @Slf4j
+//切面 = 切入点 + 通知
 public class AutoFillAspect {
 
     //切入点
     @Pointcut("execution(* com.sky.mapper.*.*(..))  && @annotation(com.sky.annotation.AutoFill)")
-    public void autoFillPointCut(){
-    }
+    public void autoFillPointCut(){}
 
+    //通知
     @Before("autoFillPointCut()")
     public void autoFill(JoinPoint joinPoint) throws Exception {
+        System.out.println("before autoFill");
         log.info("开始进行公共字段自动填充...");
 
         //获取到当前拦截的方法上的数据库操作类型
@@ -51,28 +53,25 @@ public class AutoFillAspect {
         }
 
         Object entity = args[0];
+        Class clazz = entity.getClass();
         LocalDateTime now = LocalDateTime.now();
         Long currentId = BaseContext.getCurrentId();
 
         //通过反射赋值
+        //更新赋值
+        Method setUpdateTime = clazz.getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME,LocalDateTime.class);
+        Method setUpdateUser = clazz.getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER,Long.class);
+
+        setUpdateTime.invoke(entity,now);
+        setUpdateUser.invoke(entity,currentId);
+        //插入赋值多执行两步
         if(operationType == OperationType.INSERT){
-            //插入赋值
-            Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME,LocalDateTime.class);
-            Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME,LocalDateTime.class);
-            Method setCreateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_USER,Long.class);
-            Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER,Long.class);
+
+            Method setCreateTime = clazz.getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME,LocalDateTime.class);
+            Method setCreateUser = clazz.getDeclaredMethod(AutoFillConstant.SET_CREATE_USER,Long.class);
 
             setCreateTime.invoke(entity,now);
-            setUpdateTime.invoke(entity,now);
             setCreateUser.invoke(entity,currentId);
-            setUpdateUser.invoke(entity,currentId);
-        }else if(operationType == OperationType.UPDATE){
-            //更新赋值
-            Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME,LocalDateTime.class);
-            Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER,Long.class);
-
-            setUpdateTime.invoke(entity,now);
-            setUpdateUser.invoke(entity,currentId);
         }
     }
 }
