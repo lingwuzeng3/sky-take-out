@@ -5,6 +5,8 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 
+import java.util.List;
+
 /**
  * 包名：com.sky.service
  * 用户：admin
@@ -17,4 +19,5 @@ public interface DishService {
 
     PageResult page(DishPageQueryDTO dishPageQueryDTO);
 
+    void deleteBatch(List<Long> ids);
 }
