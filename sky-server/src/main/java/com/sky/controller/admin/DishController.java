@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@Api(tags = "")
+@Api(tags = "菜品相关接口")
 @RequestMapping("/admin/dish")
 public class DishController {
 
