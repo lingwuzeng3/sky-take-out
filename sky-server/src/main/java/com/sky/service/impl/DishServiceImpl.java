@@ -46,20 +46,19 @@ public class DishServiceImpl implements DishService {
     @Transactional
     public void saveWithFlavor(DishDTO dishDTO){
 
-        //分析处理，需要向菜品表插入一条数据，口味表插入多条数据（一个菜品可能有多种口味）
+        //向菜品表插入数据
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO,dish);
         dishMapper.insert(dish);
 
-        //获取生成菜品的id
-        Long id = dish.getId();
-
+        //口味表插入多条数据（一个菜品可能有多种口味）
         List<DishFlavor> flavors = dishDTO.getFlavors();
         if (flavors!=null&&flavors.size()>0) {
             flavors.forEach(flavor->{
+                //关联菜品的id
                 flavor.setDishId(dish.getId());
             });
-            //向口味表插入数据
+            //插入数据
             dishFlavorMapper.insertBatch(flavors);
         }
     }
@@ -114,5 +113,52 @@ public class DishServiceImpl implements DishService {
         //根据菜品id批量删除口味数据
         dishFlavorMapper.deleteByDishIds(ids);
 
+    }
+
+    /**
+     * 根据id查询菜品和对应的口味数据
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+
+        DishVO dishVO = new DishVO();
+
+        //获取菜品表数据
+        Dish dish = dishMapper.getById(id);
+
+        //获取口味表数据
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
+
+        //填充数据
+        BeanUtils.copyProperties(dish,dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+
+    /**
+     * 更新修改菜品信息
+     * @param dishDTO
+     */
+    @Override
+    public void updateWithFlavor(DishDTO dishDTO) {
+
+        //修改菜品表
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO,dish);
+        dishMapper.update(dish);
+
+        //修改口味表(本质上的删旧增新）
+        dishFlavorMapper.deleteByDishId(dish.getId());
+        //口味表关联到菜品表，并加入口味数据
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors!=null&&flavors.size()>0) {
+            flavors.forEach(flavor->{
+                flavor.setDishId(dish.getId());
+            });
+            //向口味表插入数据
+            dishFlavorMapper.insertBatch(flavors);
+        }
     }
 }
