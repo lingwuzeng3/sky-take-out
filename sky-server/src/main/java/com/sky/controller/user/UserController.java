@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @RestController
 @Slf4j
-@Api(tags = "客户端用户相关接口")
+@Api(tags = "C端-用户接口")
 @RequestMapping("/user/user")
 public class UserController {
 
@@ -44,7 +44,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    @ApiOperation("微信登录")
+    @ApiOperation("登录")
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO) {
 
         log.info("微信用户登录:{}", userLoginDTO.getCode());
@@ -54,7 +54,7 @@ public class UserController {
         //为微信用户生成令牌
         Map<String,Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.USER_ID, user.getId());
-        String token = JwtUtil.createJWT(jwtProperties.getAdminSecretKey(),jwtProperties.getUserTtl(),claims);
+        String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(),jwtProperties.getUserTtl(),claims);
 
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
