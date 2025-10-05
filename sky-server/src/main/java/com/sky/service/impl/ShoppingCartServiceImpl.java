@@ -117,7 +117,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart cart = list.get(0);
 
         //如果数量 >= 2
-        int number = cart.getNumber();
+        Integer number = cart.getNumber();
         if(number >= 2){
             //菜品数量-1
             cart.setNumber(number - 1);
