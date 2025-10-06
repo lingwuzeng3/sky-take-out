@@ -52,4 +52,10 @@ public interface ShoppingCartMapper {
      * 根据菜品or套餐id 删除指定菜品
      */
     void deleteById(ShoppingCart shoppingCart);
-}
+
+    /**
+     * 批量插入购物车数据
+     *
+     * @param shoppingCartList
+     */
+    void insertBatch(List<ShoppingCart> shoppingCartList);}
