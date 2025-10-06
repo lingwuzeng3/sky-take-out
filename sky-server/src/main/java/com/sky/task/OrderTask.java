@@ -30,7 +30,7 @@ public class OrderTask {
     @Scheduled(cron = "0 * * * * ?")//每分钟触发一次
     //@Scheduled(cron = "1/5 * * * * ?")
     public void processTimeoutOrder(){
-        log.info("定时处理超时订单:{}", LocalDateTime.now());
+        log.info("定时检查并处理超时订单:{}", LocalDateTime.now());
 
         List<Orders> list = orderMapper.getByStatusAndOrderTimeLT(Orders.PENDING_PAYMENT,LocalDateTime.now().minusMinutes(15));
 

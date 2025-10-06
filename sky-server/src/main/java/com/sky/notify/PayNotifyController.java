@@ -38,6 +38,13 @@ public class PayNotifyController {
      */
     @RequestMapping("/paySuccess")
     public void paySuccessNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        System.out.println("测试能否正常访问paySuccess------------------------------" +
+                "--------------------------------------------------" +
+                "-------------------------------------------------------" +
+                "-------------------------------------------------------" +
+                "-------------------------------------------------------------------");
+
+
         //读取数据
         String body = readData(request);
         log.info("支付成功回调：{}", body);
