@@ -4,6 +4,8 @@ import com.sky.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Map;
+
 /**
  * 包名：com.sky.mapper
  * 用户：admin
@@ -33,4 +35,6 @@ public interface UserMapper {
      */
 
     void insert(User user);
+
+    Integer countByMap(Map map);
 }
